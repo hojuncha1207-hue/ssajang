@@ -1,15 +1,51 @@
 (() => {
-    // 화면 전환 함수
+    // =============================================
+    // ✨ 상품 관리 기능 (복원) ✨
+    // =============================================
+    const initialProducts = [
+        { id: 1, name: '돼지갈비', price: 18000 },
+        { id: 2, name: '목살 (600g)', price: 16000 },
+        { id: 3, name: '삼겹살 (600g)', price: 17000 },
+    ];
+    let products = JSON.parse(localStorage.getItem('ilbunji_products')) || initialProducts;
+
+    function saveProducts() {
+        localStorage.setItem('ilbunji_products', JSON.stringify(products));
+    }
+
+    function renderProducts() {
+        const container = document.getElementById('productListContainer');
+        container.innerHTML = '';
+        products.forEach(product => {
+            const div = document.createElement('div');
+            div.className = 'flex justify-between items-center bg-white p-4 rounded-lg border';
+            div.innerHTML = `
+                <div>
+                    <p class="font-semibold">${product.name}</p>
+                    <p class="text-gray-600">${product.price.toLocaleString()}원</p>
+                </div>
+                <button data-id="${product.id}" class="delete-product-btn px-3 py-1 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200">삭제</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    // =============================================
+    // ✨ 화면 전환 및 주문 내역 조회 기능 ✨
+    // =============================================
     function showScreen(screenId) {
         document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
 
+        // 각 화면에 맞는 렌더링 함수를 호출합니다.
+        if (screenId === 'productScreen') {
+            renderProducts();
+        }
         if (screenId === 'orderScreen') {
             renderOrders();
         }
     }
 
-    // ✨ 서버에서 주문 데이터를 받아와 화면에 렌더링하는 함수 ✨
     async function renderOrders() {
         const container = document.getElementById('orderListContainer');
         container.innerHTML = '<p class="text-gray-500">주문 내역을 불러오는 중...</p>';
@@ -31,13 +67,10 @@
             fetchedOrders.forEach(order => {
                 const card = document.createElement('div');
                 card.className = 'bg-white p-6 rounded-lg border';
-
                 const itemDetails = order.items.map(item => `<li>${item.name} x ${item.quantity}</li>`).join('');
                 const itemsHtml = `<h4 class="font-semibold mt-2">주문 상품</h4><ul class="list-disc list-inside text-sm text-gray-700">${itemDetails}</ul>`;
-                
                 const orderDate = new Date(order.order_date).toLocaleString('ko-KR');
 
-                // 주문번호(order.order_id)와 사용자 ID(order.user_id)를 화면에 표시
                 card.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div>
@@ -58,20 +91,51 @@
         }
     }
 
-    // 이벤트 리스너 설정
+    // =============================================
+    // ✨ 모든 이벤트 리스너 설정 (복원) ✨
+    // =============================================
     function setupEventListeners() {
+        // 공통: 화면 전환 버튼
         document.querySelectorAll('.nav-btn-admin').forEach(btn => {
             btn.addEventListener('click', () => {
                 showScreen(btn.dataset.screen);
             });
         });
-        // 상품 관리 기능은 현재 사용하지 않으므로 관련 코드는 생략합니다.
+
+        // 상품 관리: 새 상품 추가 폼
+        const addProductForm = document.getElementById('addProductForm');
+        if (addProductForm) {
+            addProductForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameInput = document.getElementById('productName');
+                const priceInput = document.getElementById('productPrice');
+                
+                const newProduct = { id: Date.now(), name: nameInput.value, price: parseInt(priceInput.value, 10) };
+                products.push(newProduct);
+                saveProducts();
+                renderProducts();
+                e.target.reset();
+            });
+        }
+
+        // 상품 관리: 상품 삭제 버튼
+        const productListContainer = document.getElementById('productListContainer');
+        if (productListContainer) {
+            productListContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-product-btn')) {
+                    const productId = parseInt(e.target.dataset.id, 10);
+                    products = products.filter(p => p.id !== productId);
+                    saveProducts();
+                    renderProducts();
+                }
+            });
+        }
     }
 
     // 앱 초기화
     document.addEventListener('DOMContentLoaded', () => {
         setupEventListeners();
-        showScreen('dashboardScreen'); // 처음에는 대시보드 화면을 보여줍니다.
+        showScreen('dashboardScreen');
     });
 
 })();
