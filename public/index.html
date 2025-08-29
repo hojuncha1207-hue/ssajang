@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>청냠리 사장님 센터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100">
+    <div id="appContainer" class="max-w-4xl mx-auto my-10 p-8 bg-white rounded-2xl shadow-lg">
+
+        <div id="dashboardScreen" class="screen active">
+            <div class="flex justify-between items-center mb-10">
+                <div>
+                    <h1 class="text-3xl font-bold logo-gradient">일번지정육점</h1>
+                    <p class="text-gray-500">사장님, 환영합니다!</p>
+                </div>
+                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <button data-screen="productScreen" class="nav-btn-admin flex flex-col items-center justify-center p-8 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
+                    <span class="text-5xl mb-4">🛍️</span>
+                    <h2 class="text-2xl font-bold text-blue-800">상품 관리</h2>
+                    <p class="text-blue-600">가게의 상품을 추가/관리합니다.</p>
+                </button>
+                <button data-screen="orderScreen" class="nav-btn-admin flex flex-col items-center justify-center p-8 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">
+                    <span class="text-5xl mb-4">📋</span>
+                    <h2 class="text-2xl font-bold text-green-800">주문 내역 조회</h2>
+                    <p class="text-green-600">들어온 고객 주문을 확인합니다.</p>
+                </button>
+            </div>
+        </div>
+
+        <div id="productScreen" class="screen">
+            <header class="flex items-center mb-6">
+                <button data-screen="dashboardScreen" class="nav-btn-admin p-2 mr-4 hover:bg-gray-100 rounded-full"><-</button>
+                <h1 class="text-3xl font-bold">상품 관리</h1>
+            </header>
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4">새 상품 추가</h2>
+                <form id="addProductForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" id="productName" placeholder="상품 이름 (예: 국내산 삼겹살)" required class="md:col-span-2 w-full px-4 py-2 border rounded-lg">
+                    <input type="number" id="productPrice" placeholder="가격 (숫자만)" required class="w-full px-4 py-2 border rounded-lg">
+                    <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">추가하기</button>
+                </form>
+            </div>
+            <div class="mt-8">
+                <h2 class="text-xl font-semibold mb-4">등록된 상품 목록</h2>
+                <div id="productListContainer" class="space-y-3">
+                    </div>
+            </div>
+        </div>
+
+        <div id="orderScreen" class="screen">
+            <header class="flex items-center mb-6">
+                <button data-screen="dashboardScreen" class="nav-btn-admin p-2 mr-4 hover:bg-gray-100 rounded-full"><-</button>
+                <h1 class="text-3xl font-bold">주문 내역 조회</h1>
+            </header>
+            <div id="orderListContainer" class="space-y-6">
+                </div>
+        </div>
+    </div>
+    <script src="admin.js"></script>
+</body>
+</html>
