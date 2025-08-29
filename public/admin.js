@@ -1,59 +1,22 @@
-// public/admin.js
 (() => {
-    // ==================== 초기 데이터 및 상태 관리 ====================
-    const initialProducts = [
-        { id: 1, name: '돼지갈비', price: 18000 },
-        { id: 2, name: '목살 (600g)', price: 16000 },
-        { id: 3, name: '삼겹살 (600g)', price: 17000 },
-        { id: 4, name: '소갈비', price: 32000 },
-        { id: 5, name: '소고기 국거리 (300g)', price: 15000 },
-        { id: 6, name: '한우 채끝', price: 45000 }
-    ];
-
-    let products = JSON.parse(localStorage.getItem('ilbunji_products')) || initialProducts;
-    
-    // ==================== 데이터 저장 함수 ====================
-    function saveProducts() {
-        localStorage.setItem('ilbunji_products', JSON.stringify(products));
-    }
-
-    // ==================== 화면 전환 함수 ====================
+    // 화면 전환 함수
     function showScreen(screenId) {
         document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
 
-        if (screenId === 'productScreen') renderProducts();
-        if (screenId === 'orderScreen') renderOrders();
+        if (screenId === 'orderScreen') {
+            renderOrders();
+        }
     }
 
-    // ==================== 렌더링 함수 ====================
-    function renderProducts() {
-        const container = document.getElementById('productListContainer');
-        container.innerHTML = '';
-        if (products.length === 0) {
-            container.innerHTML = '<p class="text-gray-500">아직 등록된 상품이 없습니다.</p>';
-            return;
-        }
-        products.forEach(product => {
-            const div = document.createElement('div');
-            div.className = 'flex justify-between items-center bg-white p-4 rounded-lg border';
-            div.innerHTML = `
-                <div>
-                    <p class="font-semibold">${product.name}</p>
-                    <p class="text-gray-600">${product.price.toLocaleString()}원</p>
-                </div>
-                <button data-id="${product.id}" class="delete-product-btn px-3 py-1 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200">삭제</button>
-            `;
-            container.appendChild(div);
-        });
-    }
-    
+    // ✨ 서버에서 주문 데이터를 받아와 화면에 렌더링하는 함수 ✨
     async function renderOrders() {
         const container = document.getElementById('orderListContainer');
         container.innerHTML = '<p class="text-gray-500">주문 내역을 불러오는 중...</p>';
 
         try {
-            const response = await fetch('/orders/ilbunji_butcher_shop');
+            // '일번지정육점'의 고유 ID '95'로 주문 내역을 요청합니다.
+            const response = await fetch('/orders/95');
             if (!response.ok) {
                 throw new Error('서버에서 데이터를 가져오지 못했습니다.');
             }
@@ -74,6 +37,7 @@
                 
                 const orderDate = new Date(order.order_date).toLocaleString('ko-KR');
 
+                // 주문번호(order.order_id)와 사용자 ID(order.user_id)를 화면에 표시
                 card.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div>
@@ -90,46 +54,24 @@
             });
         } catch (error) {
             console.error('주문 내역 로딩 실패:', error);
-            container.innerHTML = `<p class="text-red-500">주문 내역을 불러오는 데 실패했습니다. 서버가 켜져 있는지 확인하세요.</p>`;
+            container.innerHTML = `<p class="text-red-500">주문 내역을 불러오는 데 실패했습니다. 서버 로그를 확인하세요.</p>`;
         }
     }
 
-    // ==================== 이벤트 리스너 설정 ====================
+    // 이벤트 리스너 설정
     function setupEventListeners() {
         document.querySelectorAll('.nav-btn-admin').forEach(btn => {
             btn.addEventListener('click', () => {
                 showScreen(btn.dataset.screen);
             });
         });
-
-        document.getElementById('addProductForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('productName').value;
-            const price = parseInt(document.getElementById('productPrice').value, 10);
-            
-            const newProduct = { id: Date.now(), name: name, price: price };
-            products.push(newProduct);
-            saveProducts();
-            renderProducts();
-            e.target.reset();
-        });
-
-        document.getElementById('productListContainer').addEventListener('click', (e) => {
-            if (e.target.classList.contains('delete-product-btn')) {
-                const productId = parseInt(e.target.dataset.id, 10);
-                if (confirm('정말로 이 상품을 삭제하시겠습니까?')) {
-                    products = products.filter(p => p.id !== productId);
-                    saveProducts();
-                    renderProducts();
-                }
-            }
-        });
+        // 상품 관리 기능은 현재 사용하지 않으므로 관련 코드는 생략합니다.
     }
 
-    // ==================== 앱 초기화 ====================
+    // 앱 초기화
     document.addEventListener('DOMContentLoaded', () => {
         setupEventListeners();
-        showScreen('dashboardScreen');
+        showScreen('dashboardScreen'); // 처음에는 대시보드 화면을 보여줍니다.
     });
 
 })();
